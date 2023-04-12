@@ -8,7 +8,6 @@
 // #pragma comment(lib, "ws2_32.lib") // Winsock Library
 
 #define BUFLEN 512 // Max length of buffer
-#define PORT 8889  // The port on which to listen for incoming data
 
 BOOL systemShutdown() {
     HANDLE hToken;
@@ -79,7 +78,7 @@ int main() {
     // Prepare the sockaddr_in structure
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(PORT);
+    server.sin_port = htons(config.port);
 
     // Bind
     if (bind(s, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR) {
@@ -105,7 +104,7 @@ int main() {
         // print details of the client/peer and the data received
         printf("Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
         printf("Data: %s\n", buf);
-        if (strcmp(buf, "/shutdown") == 0) {
+        if (strcmp(buf, config.shutdown_cmd) == 0) {
             systemShutdown();
         }
         // now reply the client with the same data

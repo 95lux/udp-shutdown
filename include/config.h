@@ -5,7 +5,6 @@
 class Config {
 public:
     int port;
-    std::string shutdown_cmd;
+    const char *shutdown_cmd;
     Config();
-    void setup_config();
 };
