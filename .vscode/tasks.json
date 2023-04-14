@@ -9,6 +9,8 @@
                 "-g",
                 "${workspaceFolder}\\src\\**.cpp",
                 "-o",
+                // "-static-libgcc",
+                // "-static-libstdc++",
                 "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
                 "-lws2_32"
             ],
