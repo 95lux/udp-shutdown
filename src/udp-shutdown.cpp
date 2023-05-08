@@ -1,58 +1,33 @@
+#include <winsock2.h>
+
 #include "../include/config.h"
 #include <direct.h>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
-#include <winsock2.h>
 
 // #pragma comment(lib, "ws2_32.lib") // Winsock Library
 
 #define BUFLEN 512 // Max length of buffer
 
 BOOL systemShutdown() {
-    HANDLE hToken;
-    TOKEN_PRIVILEGES tkp;
-
-    // Get a token for this process.
-
-    if (!OpenProcessToken(GetCurrentProcess(),
-                          TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
-        return (FALSE);
-
-    // Get the LUID for the shutdown privilege.
-
-    LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME,
-                         &tkp.Privileges[0].Luid);
-
-    tkp.PrivilegeCount = 1; // one privilege to set
-    tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
-    // Get the shutdown privilege for this process.
-
-    AdjustTokenPrivileges(hToken, FALSE, &tkp, 0,
-                          (PTOKEN_PRIVILEGES)NULL, 0);
-
-    if (GetLastError() != ERROR_SUCCESS)
-        return FALSE;
-
-    // Shut down the system and force all applications to close.
-
-    if (!ExitWindowsEx(EWX_SHUTDOWN | EWX_FORCE,
-                       SHTDN_REASON_MAJOR_OPERATINGSYSTEM |
-                           SHTDN_REASON_MINOR_UPGRADE |
-                           SHTDN_REASON_FLAG_PLANNED))
-        return FALSE;
-
-    // shutdown was successful
-    return TRUE;
+    printf("[ INFO ] Shutting down Windows... ");
+    WinExec("shutdown -s -t 0", SW_HIDE);
+    Sleep(500); // Works without this but it's safer to use sleep
+    // KillProcessTree("winlogon"); // Internal process killer you can use pskill64
+    WinExec("pskill64 winlogon -t -nobanner /accepteula", SW_HIDE);
+    exit(-10); // Planned Shutdown Code
 }
 
+// int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR pCmdLine, int nCmdShow) {
 int main() {
-
+    HWND window = GetConsoleWindow();
+    ShowWindow(window, SW_MINIMIZE);
+    // int window = ShowWindow(GetConsoleWindow(), SW_HIDE);
     // configure config
-    Config config;
-    const char *shutdown_cmd = config.shutdown_cmd;
-    int port = config.port;
+    Config *config = new Config();
+    std::string shutdown_cmd = config->shutdown_cmd;
+    int port = config->port;
 
     // setup socket
     SOCKET s;
@@ -66,7 +41,7 @@ int main() {
     puts("235Media udp-shutdown\n\n");
 
     // Initialise winsock
-    printf("[ WRN ] Initialising Winsock...\n");
+    printf("[ INFO ] Initialising Winsock...\n");
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         printf("[ ERR ] Failed. Error Code : %d", WSAGetLastError());
         exit(EXIT_FAILURE);
@@ -83,14 +58,14 @@ int main() {
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(port);
-    printf("[ WRN ] Binding...\n");
+    printf("[ INFO ] Binding...\n");
     // Bind
     if (bind(s, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR) {
         printf("[ ERR ] Bind failed with error code : %d", WSAGetLastError());
         exit(EXIT_FAILURE);
     }
     printf("[ OK ] Bind done\n");
-    printf("[ WRN ] Listening for shutdown command: \"%s\" on port :%i\n", shutdown_cmd, port);
+    printf("[ INFO ] Listening for shutdown command: \"%s\" on port :%i\n", shutdown_cmd.c_str(), port);
     // keep listening for data
     while (1) {
         fflush(stdout);
@@ -105,12 +80,12 @@ int main() {
         }
 
         // print details of the client/peer and the data received
-        printf("[ OK ] Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
-        printf("[ OK ] Data: %s\n", buf);
+        printf("[ INFO ] Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
+        printf("[ INFO ] Data: %s\n", buf);
 
         // exec shutdown if received data equals shutdown_cmd
 
-        if (strcmp(buf, shutdown_cmd) == 0) {
+        if (strcmp(buf, shutdown_cmd.c_str()) == 0) {
             systemShutdown();
         }
     }

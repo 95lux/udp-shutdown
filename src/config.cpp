@@ -18,12 +18,12 @@ Config::Config() {
     ini.SetUnicode();
     SI_Error rc = ini.LoadFile(path.c_str());
     if (rc < 0) {
-        std::cout << "[err] config.ini not found at 'C:\\235Media\\udp-shutdown\\config.ini' Exiting program. " << std::endl;
+        std::cout << "[err] config.ini not found at '" << path << "' Exiting program. " << std::endl;
         exit(-1);
     };
     CSimpleIniA::TNamesDepend keys;
     ini.GetAllKeys("LOGFILES_PATHS", keys);
 
     this->port = std::stoi(ini.GetValue("config", "port", "default"));
-    this->shutdown_cmd = ini.GetValue("config", "shutdown_command", "default");
+    this->shutdown_cmd = std::string(ini.GetValue("config", "shutdown_command", "default"));
 }

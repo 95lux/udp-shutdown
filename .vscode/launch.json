@@ -4,7 +4,7 @@
             "name": "C/C++: g++.exe build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
+            "program": "${workspaceFolder}\\bin\\udp-shutdown.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

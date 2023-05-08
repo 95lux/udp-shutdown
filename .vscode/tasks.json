@@ -9,10 +9,14 @@
                 "-g",
                 "${workspaceFolder}\\src\\**.cpp",
                 "-o",
+                // "${workspaceFolder}\\res\\resources.o",
                 // "-static-libgcc",
                 // "-static-libstdc++",
-                "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
-                "-lws2_32"
+                "${workspaceFolder}\\bin\\udp-shutdown.exe",
+                "${workspaceFolder}\\res\\resources.res",
+                "-lws2_32",
+                // "-Wl,--subsystem,windows",
+                // "-municode"
             ],
             "options": {
                 "cwd": "${fileDirname}"
