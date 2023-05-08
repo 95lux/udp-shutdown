@@ -6,7 +6,7 @@
 
 2. Configure `udp_command` and `port` in `config.ini`
 
-3. Start .exe as admin to be sure it gets minimized on startup
+3. Start .exe as admin to be sure it gets minimized on startup. For autostart create shortcut with admin privileges in `shell:startup`
 
 4. Send respective udp string and enjoy your shutdown pc
 
