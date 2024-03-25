@@ -4,21 +4,21 @@
 #include <string.h>
 
 Config::Config() {
-    char result[MAX_PATH];
-    std::string path = std::string(result, GetModuleFileName(NULL, result, MAX_PATH));
-    char last = path.back();
+    wchar_t result[MAX_PATH];
+    std::wstring path = std::wstring(result, GetModuleFileName(NULL, result, MAX_PATH));
+    wchar_t last = path.back();
 
     while (last != '\\') {
         path = path.substr(0, path.size() - 1);
         last = path.back();
     }
-    path = path + "config.ini";
+    path = path + L"config.ini";
 
     CSimpleIniA ini;
     ini.SetUnicode();
     SI_Error rc = ini.LoadFile(path.c_str());
     if (rc < 0) {
-        std::cout << "[err] config.ini not found at '" << path << "' Exiting program. " << std::endl;
+        std::wcout << L"[err] config.ini not found at '" << path << L"' Exiting program. " << std::endl;
         exit(-1);
     };
     CSimpleIniA::TNamesDepend keys;
